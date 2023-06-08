@@ -2,6 +2,7 @@ import { join, resolve } from "https://deno.land/std@0.182.0/path/mod.ts";
 import { parse } from "https://deno.land/std@0.182.0/flags/mod.ts";
 import island from "./templates/islands/counter.ts";
 import route from "./templates/routes/route.ts";
+import * as kv from "./templates/utils/kv.ts";
 
 function capitalizeFirst(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -17,6 +18,7 @@ const help = `juicer - A scaffolding tool for Fresh projects
 USAGE:
     juicer island <NAME>
     juicer route <NAME>
+    juicer kv <NAME>
 `;
 
 if (flags._.length !== 2) {
@@ -44,6 +46,31 @@ if (type === "route" || type === "r") {
 
   const contents = route(capitalizeFirst(name), answer);
   await Deno.mkdir(join(resolvedDirectory, "routes"), {
+    recursive: true,
+  });
+  await Deno.writeTextFile(filePath, contents);
+  console.log(`Created ${filePath}`);
+}
+
+if (type === "kv") {
+  const filePath = join(resolvedDirectory, "utils", `${name}.ts`);
+  const kvName = capitalizeFirst(name);
+  const fields: kv.Field[] = [
+    { name: "title", type: "string", nullable: false },
+    { name: "body", type: "string", nullable: false },
+  ];
+
+  const contents = [
+    "const kv = await Deno.openKv();",
+    kv.typeCode(kvName, fields),
+    kv.listCode(kvName),
+    kv.addCode(kvName, fields),
+    kv.getCode(kvName),
+    kv.updateCode(kvName, fields),
+    kv.deleteCode(kvName),
+  ].join("\n");
+
+  await Deno.mkdir(join(resolvedDirectory, "utils"), {
     recursive: true,
   });
   await Deno.writeTextFile(filePath, contents);
