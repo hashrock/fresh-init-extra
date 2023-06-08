@@ -3,7 +3,7 @@ WIP
 # Install
 
 ```bash
-> deno install -Arf https://deno.land/x/juicer/juicer.ts
+$ deno install -Arf https://deno.land/x/juicer/juicer.ts
 ```
 
 # Usage
