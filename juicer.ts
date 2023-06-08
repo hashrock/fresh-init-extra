@@ -30,8 +30,12 @@ async function confirmWrite(filePath: string) {
   if (flags.force) {
     return true;
   }
-  if ((await Deno.stat(filePath)).isFile) {
-    return window.confirm(`Overwrite ${filePath}?`);
+  try {
+    if ((await Deno.stat(filePath)).isFile) {
+      return window.confirm(`Overwrite ${filePath}?`);
+    }
+  } catch (_) {
+    // none
   }
   return true;
 }
