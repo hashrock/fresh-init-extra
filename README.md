@@ -4,15 +4,21 @@ WIP
 
 Create an island
 
-> deno run -A https://deno.land/x/juicer/juicer.ts island MyButton
+```bash
+$ deno run -A https://deno.land/x/juicer/juicer.ts island MyButton
+```
 
 Create a route
 
-> deno run -A https://deno.land/x/juicer/juicer.ts route posts
+```bash
+$ deno run -A https://deno.land/x/juicer/juicer.ts route posts
+```
 
 # Install
 
-> deno install -A https://deno.land/x/juicer/juicer.ts
+```bash
+$ deno install -Arf https://deno.land/x/juicer/juicer.ts
+```
 
 # TODO
 
