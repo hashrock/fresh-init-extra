@@ -25,6 +25,30 @@ if (flags._.length !== 2) {
   console.log(help);
   Deno.exit(1);
 }
+
+async function confirmWrite(filePath: string) {
+  if (flags.force) {
+    return true;
+  }
+  if ((await Deno.stat(filePath)).isFile) {
+    return window.confirm(`Overwrite ${filePath}?`);
+  }
+  return true;
+}
+
+async function write(filePath: string, contents: string) {
+  console.log("------------------");
+  console.log(contents);
+  console.log("------------------");
+  console.log("Write to :" + filePath);
+  console.log("------------------");
+
+  if (await confirmWrite(filePath)) {
+    await Deno.writeTextFileSync(filePath, contents);
+    console.log(`Created ${filePath}`);
+  }
+}
+
 const resolvedDirectory = resolve(".");
 const type = flags._[0].toString();
 const name = flags._[1].toString();
@@ -35,8 +59,7 @@ if (type === "island" || type === "i") {
   await Deno.mkdir(join(resolvedDirectory, "islands"), {
     recursive: true,
   });
-  await Deno.writeTextFile(filePath, contents);
-  console.log(`Created ${filePath}`);
+  await write(filePath, contents);
 }
 
 if (type === "route" || type === "r") {
@@ -48,8 +71,7 @@ if (type === "route" || type === "r") {
   await Deno.mkdir(join(resolvedDirectory, "routes"), {
     recursive: true,
   });
-  await Deno.writeTextFile(filePath, contents);
-  console.log(`Created ${filePath}`);
+  await write(filePath, contents);
 }
 
 if (type === "kv") {
@@ -73,6 +95,5 @@ if (type === "kv") {
   await Deno.mkdir(join(resolvedDirectory, "utils"), {
     recursive: true,
   });
-  await Deno.writeTextFile(filePath, contents);
-  console.log(`Created ${filePath}`);
+  await write(filePath, contents);
 }
