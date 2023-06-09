@@ -12,6 +12,7 @@ import {
   Select,
 } from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
 import { resolve } from "https://deno.land/std@0.182.0/path/mod.ts";
+import generateAdminPanel from "../templates/islands/AdminPanel.ts";
 
 export default async function generate() {
   const type = await Select.prompt({
@@ -125,7 +126,7 @@ async function createRest(resolvedDirectory: string) {
 
   const indexPath = join(resolvedDirectory, "routes", "api", name, "index.ts");
   const singlePath = join(resolvedDirectory, "routes", "api", name, "[id].ts");
-  const adminPath = join(resolvedDirectory, "routes", "api", name, "admin.ts");
+  const adminPath = join(resolvedDirectory, "routes", "api", name, "admin.tsx");
   const adminIslandPath = join(resolvedDirectory, "islands", "AdminPanel.tsx");
 
   const kvPath = join(resolvedDirectory, "utils", `${name}.ts`);
@@ -165,7 +166,7 @@ async function createRest(resolvedDirectory: string) {
   await write(indexPath, api.index(capitalizeFirst(name)));
   await write(singlePath, api.single(capitalizeFirst(name)));
   await write(adminPath, api.admin(name, JSON.stringify(example)));
-  await Deno.copyFile("./model/islands/AdminPanel.tsx", adminIslandPath);
+  await write(adminIslandPath, generateAdminPanel());
 }
 
 async function confirmWrite(filePath: string) {
