@@ -42,7 +42,7 @@ export default function Home(props: PageProps<Data>) {
   return (
     <>
       <Head>
-        <title>Title</title>
+        <title>${name}</title>
       </Head>
       <div>
       </div>
