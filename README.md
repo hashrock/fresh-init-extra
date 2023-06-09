@@ -1,4 +1,4 @@
-WIP
+🍹 juicer - A scaffolding tool for Fresh projects
 
 # Install
 
@@ -8,37 +8,30 @@ $ deno install -Arf https://deno.land/x/juicer/juicer.ts
 
 # Usage
 
-Create an island
-
 ```bash
-$ juicer island MyButton
+$ juicer
 ```
 
-Create a route
+# Create REST API from a magic spell
 
-```bash
-$ juicer route posts
+```
+$ juicer rest <CollectionName> <FieldName>:<Type> <FieldName>:<Type> ...
 ```
 
-Create a KV glue code
+for example:
 
-```bash
-$ juicer kv user
 ```
+$ juicer rest memo text:string tags:string\[\]
+```
+
+make sure to escape brackets if you use Zsh.
 
 # TODO
 
-- island
-- routes
-  - page
-    - custom handler
-    - markdown render
-      - data/hello.md
-  - markdown page
-  - API
-    - crud
-  - form
-    - crud
-  - Auth snippet
-- util
-  - db code
+- [x] island
+- [x] routes + Custom Handler
+- [x] KV glue code
+- [x] REST API
+- [ ] routes with Markdown rendering
+- [ ] form style CRUD
+- [ ] Auth snippet

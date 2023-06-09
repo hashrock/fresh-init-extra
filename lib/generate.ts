@@ -4,11 +4,7 @@ import route from "../templates/routes/route.ts";
 import * as kv from "../templates/utils/kv.ts";
 import * as api from "../templates/routes/api.ts";
 import {
-  Checkbox,
-  Confirm,
   Input,
-  Number,
-  prompt,
   Select,
 } from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
 import { resolve } from "https://deno.land/std@0.182.0/path/mod.ts";
