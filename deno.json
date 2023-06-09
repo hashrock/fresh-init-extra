@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "install": "deno install -Arf juicer.ts",
+    "start": "deno run -A juicer.ts"
+  }
+}
