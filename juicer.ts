@@ -1,6 +1,6 @@
-import generate from "./lib/generate.ts";
+import { fromCli, generate } from "./lib/generate.ts";
 
-const title = `\x1b[33mjuicer\x1b[0m - A scaffolding tool for Fresh projects`;
+const title = `🍹\x1b[33mjuicer\x1b[0m - A scaffolding tool for Fresh projects`;
 
 console.log("");
 console.log(title);
@@ -15,4 +15,8 @@ try {
   console.log("");
 }
 
-await generate();
+if (Deno.args.length === 0) {
+  await generate();
+} else {
+  await fromCli(Deno.args);
+}

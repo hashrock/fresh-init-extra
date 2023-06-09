@@ -1,4 +1,9 @@
-export function index(name: string) {
+import { Field } from "../../templates/utils/kv.ts";
+export function index(name: string, fields: Field[]) {
+  const separeted = fields
+    .map((i) => i.name)
+    .join(", ");
+
   return `import { Handlers } from "$fresh/server.ts";
 import { add${name}, list${name} } from "../../../utils/${name.toLowerCase()}.ts";
 
@@ -8,15 +13,19 @@ export const handler: Handlers = {
     return new Response(JSON.stringify(list));
   },
   async POST(req, ctx): Promise<Response> {
-    const { title, body } = await req.json();
-    const id = await add${name}(title, body);
+    const { ${separeted}} = await req.json();
+    const id = await add${name}(${separeted});
     return new Response(JSON.stringify({ id }));
   },
 };
 `;
 }
 
-export function single(name: string) {
+export function single(name: string, fields: Field[]) {
+  const separeted = fields
+    .map((i) => i.name)
+    .join(", ");
+
   return `import { Handlers } from "$fresh/server.ts";
 import { delete${name}, get${name}, update${name} } from "../../../utils/${name.toLowerCase()}.ts";
 
@@ -26,8 +35,8 @@ export const handler: Handlers = {
     return new Response(JSON.stringify(list));
   },
   async PUT(req, ctx): Promise<Response> {
-    const { title, body } = await req.json();
-    await update${name}(ctx.params.id, title, body);
+    const { ${separeted} } = await req.json();
+    await update${name}(ctx.params.id, ${separeted});
     return new Response(JSON.stringify({ id: ctx.params.id }));
   },
   async DELETE(req, ctx): Promise<Response> {

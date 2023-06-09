@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 
-
 function AdminPanelRow(
   // deno-lint-ignore no-explicit-any
-  { collection, post, onUpdate }: { collection: string, post: any; onUpdate: () => void },
+  { collection, post, onUpdate }: {
+    collection: string;
+    post: any;
+    onUpdate: () => void;
+  },
 ) {
   const [editing, setEditing] = useState<boolean>(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -71,7 +74,9 @@ function AdminPanelRow(
   );
 }
 
-export default function AdminPanel({collection, example}: {collection: string, example: string}) {
+export default function AdminPanel(
+  { collection, example }: { collection: string; example: string },
+) {
   // deno-lint-ignore no-explicit-any
   const [posts, setPosts] = useState<any[]>([]);
   const [editing, setEditing] = useState<boolean>(false);
@@ -186,7 +191,12 @@ export default function AdminPanel({collection, example}: {collection: string, e
           </thead>
           <tbody>
             {posts.map((post) => (
-              <AdminPanelRow collection={collection} post={post} key={post.id} onUpdate={list} />
+              <AdminPanelRow
+                collection={collection}
+                post={post}
+                key={post.id}
+                onUpdate={list}
+              />
             ))}
           </tbody>
         </table>

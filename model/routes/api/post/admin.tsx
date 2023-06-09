@@ -5,7 +5,7 @@ export default function Home() {
   const example = {
     title: "Hello, world!",
     body: "This is an example post.",
-  }
+  };
 
   return (
     <>
@@ -13,7 +13,10 @@ export default function Home() {
         <title>Admin</title>
       </Head>
       <div>
-        <AdminPanel collection="post" example={JSON.stringify(example, null, 2)} />
+        <AdminPanel
+          collection="post"
+          example={JSON.stringify(example, null, 2)}
+        />
       </div>
     </>
   );
