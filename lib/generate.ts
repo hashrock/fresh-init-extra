@@ -129,10 +129,41 @@ async function createKvGlue(resolvedDirectory: string) {
   await write(filePath, contents);
 }
 
+function generateExampleFromFields(fields: kv.Field[]) {
+  const example: Record<string, unknown> = {};
+  for (const field of fields) {
+    if (field.type === "boolean") {
+      example[field.name] = false;
+      continue;
+    }
+    if (field.type === "number") {
+      example[field.name] = 0;
+      continue;
+    }
+    if (field.type === "string") {
+      example[field.name] = "";
+      continue;
+    }
+    if (field.type === "string[]") {
+      example[field.name] = ["a", "b", "c"];
+      continue;
+    }
+    if (field.type === "number[]") {
+      example[field.name] = [1, 2, 3];
+      continue;
+    }
+    if (field.type === "boolean[]") {
+      example[field.name] = [false, true];
+      continue;
+    }
+  }
+  return example;
+}
+
 async function createRest(
   resolvedDirectory: string,
   nameOpt: string | null = null,
-  fields: kv.Field[] | null,
+  fieldsOpt: kv.Field[] | null,
 ) {
   let name = nameOpt;
   if (!nameOpt) {
@@ -171,23 +202,26 @@ async function createRest(
   const kvPath = join(resolvedDirectory, "utils", `${name}.ts`);
   const kvName = capitalizeFirst(name);
 
-  const exampleFields: kv.Field[] = [
-    { name: "title", type: "string", nullable: false },
-    { name: "body", type: "string", nullable: false },
-  ];
+  let fields = fieldsOpt;
+  if (!fieldsOpt) {
+    fields = [
+      { name: "title", type: "string", nullable: false },
+      { name: "body", type: "string", nullable: false },
+    ];
+  }
+  if (fields === null) {
+    return;
+  }
 
-  const example = {
-    title: "Hello World",
-    body: "This is a post",
-  };
+  const example = generateExampleFromFields(fields);
 
   const contents = [
     "const kv = await Deno.openKv();",
-    kv.typeCode(kvName, fields ?? exampleFields),
+    kv.typeCode(kvName, fields),
     kv.listCode(kvName),
-    kv.addCode(kvName, fields ?? exampleFields),
+    kv.addCode(kvName, fields),
     kv.getCode(kvName),
-    kv.updateCode(kvName, fields ?? exampleFields),
+    kv.updateCode(kvName, fields),
     kv.deleteCode(kvName),
   ].join("\n");
 
@@ -204,11 +238,11 @@ async function createRest(
   });
   await write(
     indexPath,
-    api.index(capitalizeFirst(name), fields ?? exampleFields),
+    api.index(capitalizeFirst(name), fields),
   );
   await write(
     singlePath,
-    api.single(capitalizeFirst(name), fields ?? exampleFields),
+    api.single(capitalizeFirst(name), fields),
   );
   await write(adminPath, api.admin(name, JSON.stringify(example)));
   await write(adminIslandPath, generateAdminPanel());
