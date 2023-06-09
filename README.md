@@ -2,21 +2,29 @@ WIP
 
 # Install
 
-> deno install -Af https://deno.land/x/juicer/juicer.ts
+```bash
+$ deno install -Arf https://deno.land/x/juicer/juicer.ts
+```
 
 # Usage
 
 Create an island
 
-> juicer island MyButton
+```bash
+$ juicer island MyButton
+```
 
 Create a route
 
-> juicer route posts
+```bash
+$ juicer route posts
+```
 
 Create a KV glue code
 
-> juicer kv user
+```bash
+$ juicer kv user
+```
 
 # TODO
 
