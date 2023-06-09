@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { Post } from "../utils/post.ts";
+
 
 function AdminPanelRow(
-  { post, onUpdate }: { post: Post; onUpdate: () => void },
+  // deno-lint-ignore no-explicit-any
+  { collection, post, onUpdate }: { collection: string, post: any; onUpdate: () => void },
 ) {
   const [editing, setEditing] = useState<boolean>(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
   async function remove() {
-    await fetch(`/api/post/${post.id}`, {
+    await fetch(`/api/${collection}/${post.id}`, {
       method: "DELETE",
     }).then((res) => res.json());
     onUpdate();
@@ -22,7 +23,7 @@ function AdminPanelRow(
   }
 
   async function endEdit() {
-    await fetch(`/api/post/${post.id}`, {
+    await fetch(`/api/${collection}/${post.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -70,34 +71,29 @@ function AdminPanelRow(
   );
 }
 
-export default function AdminPanel() {
-  const [posts, setPosts] = useState<Post[]>([]);
+export default function AdminPanel({collection, example}: {collection: string, example: string}) {
+  // deno-lint-ignore no-explicit-any
+  const [posts, setPosts] = useState<any[]>([]);
   const [editing, setEditing] = useState<boolean>(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
-  const templateSrc = {
-    title: "title",
-    body: "body",
-  };
-  const [template, setTemplate] = useState<string>(
-    JSON.stringify(templateSrc, null, 2),
-  );
+  const [template, setTemplate] = useState<string>(example);
 
   useEffect(() => {
     (async () => {
-      const post = await fetch("/api/post").then((res) => res.json());
+      const post = await fetch(`/api/${collection}`).then((res) => res.json());
       setPosts(post);
     })();
   }, []);
 
   async function list() {
-    const post = await fetch("/api/post").then((res) => res.json());
+    const post = await fetch(`/api/${collection}`).then((res) => res.json());
     setPosts(post);
   }
 
   async function create(e: Event) {
     e.preventDefault();
     const json = textRef.current!.value;
-    await fetch("/api/post", {
+    await fetch(`/api/${collection}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -177,7 +173,7 @@ export default function AdminPanel() {
             </div>
           </form>
         )
-        : <button onClick={() => setEditing(true)}>New Post</button>}
+        : <button onClick={() => setEditing(true)}>New {collection}</button>}
 
       <div>
         <table>
@@ -190,7 +186,7 @@ export default function AdminPanel() {
           </thead>
           <tbody>
             {posts.map((post) => (
-              <AdminPanelRow post={post} key={post.id} onUpdate={list} />
+              <AdminPanelRow collection={collection} post={post} key={post.id} onUpdate={list} />
             ))}
           </tbody>
         </table>
