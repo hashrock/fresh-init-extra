@@ -2,6 +2,7 @@ import { join } from "https://deno.land/std@0.182.0/path/mod.ts";
 import island from "../templates/islands/counter.ts";
 import route from "../templates/routes/route.ts";
 import * as kv from "../templates/utils/kv.ts";
+import * as api from "../templates/routes/api.ts";
 import {
   Checkbox,
   Confirm,
@@ -28,6 +29,10 @@ export default async function generate() {
         name: "KV Glue Code - Code that connects to the Deno KV store",
         value: "kv",
       },
+      {
+        name: "REST API - JSON Endpoints and Admin UI",
+        value: "rest",
+      },
       Select.separator("--------"),
       { name: "Exit", value: "exit" },
     ],
@@ -45,6 +50,10 @@ export default async function generate() {
 
   if (type === "kv") {
     await createKvGlue(resolvedDirectory);
+  }
+
+  if (type === "rest") {
+    await createRest(resolvedDirectory);
   }
 }
 
@@ -108,6 +117,57 @@ async function createKvGlue(resolvedDirectory: string) {
   await write(filePath, contents);
 }
 
+async function createRest(resolvedDirectory: string) {
+  const name = await Input.prompt({
+    message: "What's the name of the collection?",
+    default: "post",
+  });
+
+  const indexPath = join(resolvedDirectory, "routes", "api", name, "index.ts");
+  const singlePath = join(resolvedDirectory, "routes", "api", name, "[id].ts");
+  const adminPath = join(resolvedDirectory, "routes", "api", name, "admin.ts");
+  const adminIslandPath = join(resolvedDirectory, "islands", "AdminPanel.tsx");
+
+  const kvPath = join(resolvedDirectory, "utils", `${name}.ts`);
+  const kvName = capitalizeFirst(name);
+
+  const fields: kv.Field[] = [
+    { name: "title", type: "string", nullable: false },
+    { name: "body", type: "string", nullable: false },
+  ];
+
+  const example = {
+    title: "Hello World",
+    body: "This is a post",
+  };
+
+  const contents = [
+    "const kv = await Deno.openKv();",
+    kv.typeCode(kvName, fields),
+    kv.listCode(kvName),
+    kv.addCode(kvName, fields),
+    kv.getCode(kvName),
+    kv.updateCode(kvName, fields),
+    kv.deleteCode(kvName),
+  ].join("\n");
+
+  await Deno.mkdir(join(resolvedDirectory, "utils"), {
+    recursive: true,
+  });
+  await write(kvPath, contents);
+  await Deno.mkdir(join(resolvedDirectory, `islands`), {
+    recursive: true,
+  });
+
+  await Deno.mkdir(join(resolvedDirectory, `routes/api/${name}`), {
+    recursive: true,
+  });
+  await write(indexPath, api.index(capitalizeFirst(name)));
+  await write(singlePath, api.single(capitalizeFirst(name)));
+  await write(adminPath, api.admin(name, JSON.stringify(example)));
+  await Deno.copyFile("./model/islands/AdminPanel.tsx", adminIslandPath);
+}
+
 async function confirmWrite(filePath: string) {
   try {
     if ((await Deno.stat(filePath)).isFile) {
@@ -127,7 +187,7 @@ async function write(filePath: string, contents: string) {
   console.log("------------------");
 
   if (await confirmWrite(filePath)) {
-    await Deno.writeTextFileSync(filePath, contents);
+    await Deno.writeTextFile(filePath, contents);
     console.log(`Created ${filePath}`);
   }
 }
