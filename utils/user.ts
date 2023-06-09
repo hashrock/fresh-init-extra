@@ -3,7 +3,7 @@ const kv = await Deno.openKv();
 export interface User {
   id: string;
   title: string;
-  body: string
+  body: string;
   createdAt: Date;
   updatedAt: Date;
 }
