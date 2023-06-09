@@ -48,7 +48,7 @@ function AdminPanelRow(
         )}
         {editing && (
           <form onSubmit={endEdit}>
-            <textarea cols={54} rows={5} ref={textRef}>
+            <textarea cols={68} rows={5} ref={textRef}>
               {JSON.stringify(post, null, 2)}
             </textarea>
             <div>
@@ -67,7 +67,12 @@ function AdminPanelRow(
 
 export default function AdminPanel() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const templateSrc = { title: "", body: "" };
+  const [editing, setEditing] = useState<boolean>(false);
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const templateSrc = {
+    title: "title",
+    body: "body",
+  };
   const [template, setTemplate] = useState<string>(
     JSON.stringify(templateSrc, null, 2),
   );
@@ -88,10 +93,10 @@ export default function AdminPanel() {
     setTemplate(JSON.stringify(templateSrc, null, 2));
   }
 
+
   async function create(e: Event) {
     e.preventDefault();
-    const json = (e.target as HTMLFormElement).querySelector("textarea")!
-      .value;
+    const json = textRef.current!.value;
     await fetch("/api/post", {
       method: "POST",
       headers: {
@@ -100,7 +105,7 @@ export default function AdminPanel() {
       body: json,
     }).then((res) => res.json());
     await list();
-    clear();
+    setEditing(false);
   }
 
   return (
@@ -109,6 +114,8 @@ export default function AdminPanel() {
         {`
           body{
             display: flex;
+            font-size: 14px;
+            margin: 2em;
           }
           table, th, td {
             border: 1px solid black;
@@ -127,23 +134,28 @@ export default function AdminPanel() {
           }
           `}
       </style>
+      {editing ? (
       <form onSubmit={create}>
         <div>
-          <textarea cols={80} rows={10}>
+          <textarea cols={80} rows={10} ref={textRef}>
             {template}
           </textarea>
         </div>
         <div>
-          <input type="submit" />
+          <input type="submit" value="Create" />
+          <button type="button" onClick={()=>{setEditing(false)}}>Cancel</button>
         </div>
-      </form>
+  </form>
+) : (
+  <button onClick={() => setEditing(true)}>New Post</button>
+)}
 
       <div>
         <table>
           <thead>
             <tr>
-              <th width={300}>id</th>
-              <th width={400}>json</th>
+              <th width={360}>id</th>
+              <th width={500}>json</th>
               <th>action</th>
             </tr>
           </thead>
