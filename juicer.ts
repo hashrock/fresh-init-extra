@@ -1,27 +1,54 @@
 import { resolve } from "https://deno.land/std@0.182.0/path/mod.ts";
-import { parse } from "https://deno.land/std@0.182.0/flags/mod.ts";
 import generate from "./lib/generate.ts";
+import {
+  Checkbox,
+  Confirm,
+  Input,
+  Number,
+  prompt,
+  Select,
+} from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
 
-const flags = parse(Deno.args, {
-  boolean: ["force", "twind", "vscode"],
-  default: { "force": null, "twind": null, "vscode": null },
+const title = `\x1b[33m juicer\x1b[0m - A scaffolding tool for Fresh projects `;
+
+console.log(title);
+console.log("\n");
+
+const type = await Select.prompt({
+  message: "What do you want to generate?",
+  options: [
+    {
+      name: "Island - Preact components that are rendered on the client",
+      value: "island",
+    },
+    {
+      name: "Route - JSX element that is rendered on the server",
+      value: "route",
+    },
+    {
+      name: "KV Glue Code - Code that connects to the Deno KV store",
+      value: "kv",
+    },
+    Select.separator("--------"),
+    { name: "Exit", value: "exit" },
+  ],
 });
 
-const help = `juicer - A scaffolding tool for Fresh projects
-
-USAGE:
-    juicer island <NAME>
-    juicer route <NAME>
-    juicer kv <NAME>
-`;
-
-if (flags._.length !== 2) {
-  console.log(help);
-  Deno.exit(1);
+let nameDefault = "";
+if (type === "island") {
+  nameDefault = "MyCounter";
+} else if (type === "route") {
+  nameDefault = "hello";
+} else if (type === "kv") {
+  nameDefault = "posts";
+} else {
+  Deno.exit(0);
 }
 
-const resolvedDirectory = resolve(".");
-const type = flags._[0].toString();
-const name = flags._[1].toString();
+const name = await Input.prompt({
+  message: "What's the name of the file?",
+  default: nameDefault,
+});
 
+const resolvedDirectory = resolve(".");
 await generate(type, name, resolvedDirectory);
