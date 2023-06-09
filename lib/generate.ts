@@ -2,13 +2,56 @@ import { join } from "https://deno.land/std@0.182.0/path/mod.ts";
 import island from "../templates/islands/counter.ts";
 import route from "../templates/routes/route.ts";
 import * as kv from "../templates/utils/kv.ts";
+import {
+  Checkbox,
+  Confirm,
+  Input,
+  Number,
+  prompt,
+  Select,
+} from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
+import { resolve } from "https://deno.land/std@0.182.0/path/mod.ts";
 
-export default async function generate(
-  type: string,
-  name: string,
-  resolvedDirectory: string,
-) {
-  if (type === "island" || type === "i") {
+export default async function generate() {
+  const type = await Select.prompt({
+    message: "What do you want to generate?",
+    options: [
+      {
+        name: "Island - Preact components that are rendered on the client",
+        value: "island",
+      },
+      {
+        name: "Route - JSX element that is rendered on the server",
+        value: "route",
+      },
+      {
+        name: "KV Glue Code - Code that connects to the Deno KV store",
+        value: "kv",
+      },
+      Select.separator("--------"),
+      { name: "Exit", value: "exit" },
+    ],
+  });
+
+  let nameDefault = "";
+  if (type === "island") {
+    nameDefault = "MyCounter";
+  } else if (type === "route") {
+    nameDefault = "hello";
+  } else if (type === "kv") {
+    nameDefault = "posts";
+  } else {
+    Deno.exit(0);
+  }
+
+  const name = await Input.prompt({
+    message: "What's the name of the file?",
+    default: nameDefault,
+  });
+
+  const resolvedDirectory = resolve(".");
+
+  if (type === "island") {
     const filePath = join(resolvedDirectory, "islands", `${name}.tsx`);
     const contents = island(capitalizeFirst(name));
     await Deno.mkdir(join(resolvedDirectory, "islands"), {
@@ -17,7 +60,7 @@ export default async function generate(
     await write(filePath, contents);
   }
 
-  if (type === "route" || type === "r") {
+  if (type === "route") {
     const filePath = join(resolvedDirectory, "routes", `${name}.tsx`);
 
     const answer = window.confirm("Do you want to create a handler?");
