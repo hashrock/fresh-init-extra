@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { Post } from "../utils/post.ts";
 
 function AdminPanelRow(
@@ -6,7 +6,6 @@ function AdminPanelRow(
 ) {
   const [editing, setEditing] = useState<boolean>(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
-
 
   async function remove() {
     await fetch(`/api/post/${post.id}`, {
@@ -53,7 +52,13 @@ function AdminPanelRow(
             </textarea>
             <div>
               <input type="submit" value="Update" />
-              <button type="button" onClick={cancel}>Cancel</button>
+              <button
+                type="button"
+                onClick={cancel}
+                style="margin-left: 0.5em;"
+              >
+                Cancel
+              </button>
             </div>
           </form>
         )}
@@ -89,11 +94,6 @@ export default function AdminPanel() {
     setPosts(post);
   }
 
-  function clear() {
-    setTemplate(JSON.stringify(templateSrc, null, 2));
-  }
-
-
   async function create(e: Event) {
     e.preventDefault();
     const json = textRef.current!.value;
@@ -116,39 +116,68 @@ export default function AdminPanel() {
             display: flex;
             font-size: 14px;
             margin: 2em;
+            background: #111;
+            color: #eee;
           }
           table, th, td {
-            border: 1px solid black;
+            border: 1px solid #666;
             border-collapse: collapse;
             padding: 0.5em;
           }
+          th{
+            color: #dbeafe;
+          }
           .editable {
             max-height: 4em; overflow-y: hidden;
+            color: #818cf8;
           }
           .editable:hover{
-            background-color: #eee;
+            background-color: #222;
             cursor: pointer;
           }
           table{
             margin-top: 2em;
           }
+          textarea{
+            background: #222;
+            color: #eee;
+          }
+          button, input{
+            background: #4338ca;
+            color: #dbeafe;
+            border: 0px solid #666;
+            padding: 0.5em 0.75em;
+            border-radius: 0.5em;
+          }
+          button:hover{
+            background: #4f46e5;
+            cursor: pointer;
+          }
           `}
       </style>
-      {editing ? (
-      <form onSubmit={create}>
-        <div>
-          <textarea cols={80} rows={10} ref={textRef}>
-            {template}
-          </textarea>
-        </div>
-        <div>
-          <input type="submit" value="Create" />
-          <button type="button" onClick={()=>{setEditing(false)}}>Cancel</button>
-        </div>
-  </form>
-) : (
-  <button onClick={() => setEditing(true)}>New Post</button>
-)}
+      {editing
+        ? (
+          <form onSubmit={create}>
+            <div>
+              <textarea cols={80} rows={10} ref={textRef}>
+                {template}
+              </textarea>
+            </div>
+            <div>
+              <input type="submit" value="Create" />
+              <button
+                style="margin-left: 0.5em;"
+                type="button"
+                onClick={() => {
+                  setEditing(false);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )
+        : <button onClick={() => setEditing(true)}>New Post</button>}
 
       <div>
         <table>
@@ -160,7 +189,9 @@ export default function AdminPanel() {
             </tr>
           </thead>
           <tbody>
-            {posts.map((post) => <AdminPanelRow post={post} key={post.id} onUpdate={list} />)}
+            {posts.map((post) => (
+              <AdminPanelRow post={post} key={post.id} onUpdate={list} />
+            ))}
           </tbody>
         </table>
       </div>
