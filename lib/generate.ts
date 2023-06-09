@@ -33,38 +33,41 @@ export default async function generate() {
     ],
   });
 
-  let nameDefault = "";
-  if (type === "island") {
-    nameDefault = "MyCounter";
-  } else if (type === "route") {
-    nameDefault = "hello";
-  } else if (type === "kv") {
-    nameDefault = "posts";
-  } else {
-    Deno.exit(0);
-  }
-
-  const name = await Input.prompt({
-    message: "What's the name of the file?",
-    default: nameDefault,
-  });
-
   const resolvedDirectory = resolve(".");
 
   if (type === "island") {
-    await createIsland(resolvedDirectory, name);
+    await createIsland(resolvedDirectory);
   }
 
   if (type === "route") {
-    await createRoute(resolvedDirectory, name);
+    await createRoute(resolvedDirectory);
   }
 
   if (type === "kv") {
-    await createKvGlue(resolvedDirectory, name);
+    await createKvGlue(resolvedDirectory);
   }
 }
 
-async function createRoute(resolvedDirectory: string, name: string) {
+async function createIsland(resolvedDirectory: string) {
+  const name = await Input.prompt({
+    message: "What's the name of the file?",
+    default: "MyCounter",
+  });
+
+  const filePath = join(resolvedDirectory, "islands", `${name}.tsx`);
+  const contents = island(capitalizeFirst(name));
+  await Deno.mkdir(join(resolvedDirectory, "islands"), {
+    recursive: true,
+  });
+  await write(filePath, contents);
+}
+
+async function createRoute(resolvedDirectory: string) {
+  const name = await Input.prompt({
+    message: "What's the name of the file?",
+    default: "hello",
+  });
+
   const filePath = join(resolvedDirectory, "routes", `${name}.tsx`);
 
   const answer = window.confirm("Do you want to create a handler?");
@@ -75,7 +78,13 @@ async function createRoute(resolvedDirectory: string, name: string) {
   });
   await write(filePath, contents);
 }
-async function createKvGlue(resolvedDirectory: string, name: string) {
+
+async function createKvGlue(resolvedDirectory: string) {
+  const name = await Input.prompt({
+    message: "What's the name of the file?",
+    default: "posts",
+  });
+
   const filePath = join(resolvedDirectory, "utils", `${name}.ts`);
   const kvName = capitalizeFirst(name);
   const fields: kv.Field[] = [
@@ -94,15 +103,6 @@ async function createKvGlue(resolvedDirectory: string, name: string) {
   ].join("\n");
 
   await Deno.mkdir(join(resolvedDirectory, "utils"), {
-    recursive: true,
-  });
-  await write(filePath, contents);
-}
-
-async function createIsland(resolvedDirectory: string, name: string) {
-  const filePath = join(resolvedDirectory, "islands", `${name}.tsx`);
-  const contents = island(capitalizeFirst(name));
-  await Deno.mkdir(join(resolvedDirectory, "islands"), {
     recursive: true,
   });
   await write(filePath, contents);
