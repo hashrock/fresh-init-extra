@@ -43,6 +43,11 @@ export async function generate() {
         value: "rest",
       },
       Select.separator("--------"),
+      {
+        name: "Template - GitHub auth with KV store",
+        value: "ghauth",
+      },
+      Select.separator("--------"),
       { name: "Exit", value: "exit" },
     ],
   });
@@ -63,6 +68,10 @@ export async function generate() {
 
   if (type === "rest") {
     await createRest(resolvedDirectory, null, null);
+  }
+
+  if (type === "ghauth") {
+    await addGitHubAuth(resolvedDirectory);
   }
 }
 
@@ -214,6 +223,77 @@ async function createRest(
   await write(adminIslandPath, generateAdminPanel());
   console.log(`You can access the admin panel at`);
   console.log(`http://localhost:8000/api/${name}/admin`);
+}
+
+async function addGitHubAuth(resolvedDirectory: string) {
+  console.log(
+    "\x1b[31mWARNING: This will overwrite your project files.\x1b[0m",
+  );
+  console.log("Please make sure you don't have any uncommitted changes.");
+
+  if (!window.confirm("Are you sure you want to continue?")) {
+    return;
+  }
+
+  const base =
+    "https://raw.githubusercontent.com/hashrock/fresh-auth-pants/main/";
+
+  await Deno.mkdir(join(resolvedDirectory, `routes/auth`), {
+    recursive: true,
+  });
+  await Deno.mkdir(join(resolvedDirectory, `utils`), {
+    recursive: true,
+  });
+  await Deno.mkdir(join(resolvedDirectory, `components`), {
+    recursive: true,
+  });
+
+  const files = [
+    "routes/_middleware.tsx",
+    "routes/auth/oauth2callback.ts",
+    "routes/auth/signin.ts",
+    "routes/auth/signout.ts",
+    "routes/index.tsx",
+    "components/Page.tsx",
+    "utils/github.ts",
+    "utils/kv_oauth.ts",
+    "utils/users.ts",
+    ".env.example",
+  ];
+
+  for (const file of files) {
+    const filePath = join(resolvedDirectory, file);
+    const contents = await fetch(base + file).then((r) => r.text());
+    await write(filePath, contents);
+  }
+
+  const importMap = await Deno.readTextFile(
+    join(resolvedDirectory, "import_map.json"),
+  );
+  const importMapJson = JSON.parse(importMap);
+  importMapJson.imports = {
+    ...importMapJson.imports,
+    "@/": "./",
+    "kv_oauth": "https://deno.land/x/deno_kv_oauth@v0.1.8-beta/mod.ts",
+  };
+  await Deno.writeTextFile(
+    join(resolvedDirectory, "import_map.json"),
+    JSON.stringify(importMapJson, null, 2),
+  );
+
+  const denoConfig = await Deno.readTextFile(
+    join(resolvedDirectory, "deno.json"),
+  );
+  const expected = "deno run -A --watch=static/,routes/ dev.ts";
+  const overwrite = "deno run -A --unstable --watch=static/,routes/ dev.ts";
+  const denoConfigJson = JSON.parse(denoConfig);
+  if (denoConfigJson.tasks.start === expected) {
+    denoConfigJson.tasks.start = overwrite;
+    await Deno.writeTextFile(
+      join(resolvedDirectory, "deno.json"),
+      JSON.stringify(denoConfigJson, null, 2),
+    );
+  }
 }
 
 async function confirmWrite(filePath: string) {

@@ -2,7 +2,6 @@
 
 <img width="821" alt="image" src="https://github.com/hashrock/juicer/assets/3132889/bbe8032b-5542-498d-8856-997b5a0b7dd3">
 
-
 # Install
 
 ```bash
@@ -35,8 +34,6 @@ http://localhost:8000/api/memo/admin
 
 <img width="1019" alt="image" src="https://github.com/hashrock/juicer/assets/3132889/d5f03bb6-a3aa-4504-a035-4f068ee8beae">
 
-
-
 # TODO
 
 - [x] island
@@ -45,4 +42,4 @@ http://localhost:8000/api/memo/admin
 - [x] REST API
 - [ ] routes with Markdown rendering
 - [ ] form style CRUD
-- [ ] Auth snippet
+- [x] Auth snippet
