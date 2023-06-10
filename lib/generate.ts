@@ -212,6 +212,8 @@ async function createRest(
   );
   await write(adminPath, api.admin(name, JSON.stringify(example)));
   await write(adminIslandPath, generateAdminPanel());
+  console.log(`You can access the admin panel at`);
+  console.log(`http://localhost:8000/api/${name}/admin`);
 }
 
 async function confirmWrite(filePath: string) {
