@@ -1,0 +1,14 @@
+export const snapshot = {};
+
+snapshot[`generate example json 1`] = `
+{
+  body: "",
+  score: 0,
+  tags: [
+    "a",
+    "b",
+    "c",
+  ],
+  title: "",
+}
+`;

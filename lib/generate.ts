@@ -1,4 +1,4 @@
-import { join } from "https://deno.land/std@0.182.0/path/mod.ts";
+import { join } from "https://deno.land/std@0.188.0/path/mod.ts";
 import island from "../templates/islands/counter.ts";
 import route from "../templates/routes/route.ts";
 import * as kv from "../templates/utils/kv.ts";
@@ -7,8 +7,9 @@ import {
   Input,
   Select,
 } from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
-import { resolve } from "https://deno.land/std@0.182.0/path/mod.ts";
+import { resolve } from "https://deno.land/std@0.188.0/path/mod.ts";
 import generateAdminPanel from "../templates/islands/AdminPanel.ts";
+import { capitalizeFirst, generateExampleFromFields } from "./utils.ts";
 
 export async function fromCli(args: string[]) {
   if (args[0] === "rest") {
@@ -30,7 +31,7 @@ export async function generate() {
         value: "island",
       },
       {
-        name: "Route - JSX element that is rendered on the server",
+        name: "Route - handles API requests or render HTML pages",
         value: "route",
       },
       {
@@ -123,37 +124,6 @@ async function createKvGlue(resolvedDirectory: string) {
     recursive: true,
   });
   await write(filePath, contents);
-}
-
-function generateExampleFromFields(fields: kv.Field[]) {
-  const example: Record<string, unknown> = {};
-  for (const field of fields) {
-    if (field.type === "boolean") {
-      example[field.name] = false;
-      continue;
-    }
-    if (field.type === "number") {
-      example[field.name] = 0;
-      continue;
-    }
-    if (field.type === "string") {
-      example[field.name] = "";
-      continue;
-    }
-    if (field.type === "string[]") {
-      example[field.name] = ["a", "b", "c"];
-      continue;
-    }
-    if (field.type === "number[]") {
-      example[field.name] = [1, 2, 3];
-      continue;
-    }
-    if (field.type === "boolean[]") {
-      example[field.name] = [false, true];
-      continue;
-    }
-  }
-  return example;
 }
 
 async function createRest(
@@ -260,8 +230,4 @@ async function write(filePath: string, contents: string) {
     await Deno.writeTextFile(filePath, contents);
     console.log(`Created ${filePath}`);
   }
-}
-
-function capitalizeFirst(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
