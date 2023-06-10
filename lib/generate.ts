@@ -256,12 +256,6 @@ async function confirmWrite(filePath: string) {
 }
 
 async function write(filePath: string, contents: string) {
-  console.log("------------------");
-  console.log(contents);
-  console.log("------------------");
-  console.log("Write to :" + filePath);
-  console.log("------------------");
-
   if (await confirmWrite(filePath)) {
     await Deno.writeTextFile(filePath, contents);
     console.log(`Created ${filePath}`);
